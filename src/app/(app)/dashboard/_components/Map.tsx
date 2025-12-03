@@ -6,9 +6,10 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 interface MapProps {
   flyToLocation?: [number, number] | null;
+  onMoveEnd?: (center: [number, number]) => void;
 }
 
-export function Map({ flyToLocation }: MapProps) {
+export function Map({ flyToLocation, onMoveEnd }: MapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
 
@@ -53,6 +54,14 @@ export function Map({ flyToLocation }: MapProps) {
         "bottom-right"
       );
 
+      // Add moveend listener
+      map.current.on("moveend", () => {
+        if (onMoveEnd) {
+          const center = map.current!.getCenter();
+          onMoveEnd([center.lng, center.lat]);
+        }
+      });
+
       // Auto-fly to user location
       try {
         const response = await fetch("/api/geo");
@@ -68,6 +77,13 @@ export function Map({ flyToLocation }: MapProps) {
             duration: 3000,
             essential: true
           });
+
+          // Call onMoveEnd after flyTo animation completes
+          setTimeout(() => {
+            if (onMoveEnd && map.current) {
+              onMoveEnd(map.current.getCenter().toArray() as [number, number]);
+            }
+          }, 3000);
         }
       } catch (error) {
         console.error("Failed to fetch user location:", error);
