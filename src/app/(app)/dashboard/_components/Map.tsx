@@ -31,7 +31,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
       map.current.addSource("light-pollution", {
         type: "raster",
         tiles: [
-          "https://pub-5ec788c7cc324df48e09c31eb119bae4.r2.dev/tiles/viirs/{z}/{x}/{y}.png"
+          "https://pub-5ec788c7cc324df48e09c31eb119bae4.r2.dev/{z}/{x}/{y}.png"
         ],
         tileSize: 256,
         attribution: "Light pollution data from VIIRS"
