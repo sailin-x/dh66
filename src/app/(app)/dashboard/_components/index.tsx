@@ -12,3 +12,4 @@ export const Map = dynamic(() => import("./Map").then((mod) => ({ default: mod.M
 });
 
 export { CommandPalette } from "./CommandPalette";
+export { IntelligencePanel } from "./IntelligencePanel";
