@@ -19,7 +19,7 @@ export function Map() {
       attributionControl: false,
     });
 
-    map.current.on("load", () => {
+    map.current.on("load", async () => {
       if (!map.current) return;
 
       // Add light pollution layer
@@ -48,6 +48,26 @@ export function Map() {
         }),
         "bottom-right"
       );
+
+      // Auto-fly to user location
+      try {
+        const response = await fetch("/api/geo");
+        const geoData = await response.json();
+
+        if (geoData.latitude && geoData.longitude) {
+          const latitude = parseFloat(geoData.latitude);
+          const longitude = parseFloat(geoData.longitude);
+
+          map.current?.flyTo({
+            center: [longitude, latitude],
+            zoom: 8,
+            duration: 3000,
+            essential: true
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch user location:", error);
+      }
     });
 
     return () => {
