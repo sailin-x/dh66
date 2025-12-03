@@ -4,7 +4,11 @@ import { useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-export function Map() {
+interface MapProps {
+  flyToLocation?: [number, number] | null;
+}
+
+export function Map({ flyToLocation }: MapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
 
@@ -77,6 +81,18 @@ export function Map() {
       }
     };
   }, []);
+
+  // Effect to fly to location when flyToLocation changes
+  useEffect(() => {
+    if (flyToLocation && map.current) {
+      map.current.flyTo({
+        center: flyToLocation,
+        zoom: 12,
+        duration: 2000,
+        essential: true
+      });
+    }
+  }, [flyToLocation]);
 
   return (
     <div className="h-full w-full">

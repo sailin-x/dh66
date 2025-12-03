@@ -10,3 +10,5 @@ export const Map = dynamic(() => import("./Map").then((mod) => ({ default: mod.M
     </div>
   ),
 });
+
+export { CommandPalette } from "./CommandPalette";
