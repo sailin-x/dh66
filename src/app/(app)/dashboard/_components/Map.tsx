@@ -34,6 +34,8 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
           "https://pub-5ec788c7cc324df48e09c31eb119bae4.r2.dev/{z}/{x}/{y}.png"
         ],
         tileSize: 256,
+        minzoom: 0,
+        maxzoom: 8, // Limit to zoom levels we have tiles for
         attribution: "Light pollution data from VIIRS"
       });
 
