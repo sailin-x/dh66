@@ -27,7 +27,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
     map.current.on("load", async () => {
       if (!map.current) return;
 
-      // Add light pollution layer
+      // Add light pollution layer (New Transparent Tiles)
       map.current.addSource("light-pollution", {
         type: "raster",
         tiles: [
@@ -42,7 +42,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         type: "raster",
         source: "light-pollution",
         paint: {
-          "raster-opacity": 0.7
+          "raster-opacity": 1.0 // Full opacity for transparent tiles
         }
       });
 
