@@ -35,7 +35,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         ],
         tileSize: 256,
         minzoom: 0,
-        maxzoom: 8, // Limit to zoom levels we have tiles for
+        maxzoom: 9, // Limit to zoom levels we have tiles for
         attribution: "Light pollution data from VIIRS"
       });
 
@@ -44,7 +44,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         type: "raster",
         source: "light-pollution",
         paint: {
-          "raster-opacity": 1.0 // Full opacity for transparent tiles
+          "raster-opacity": 0.8 // Balanced opacity for transparent tiles
         }
       });
 
