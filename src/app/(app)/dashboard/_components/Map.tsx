@@ -21,6 +21,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
       style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
       center: [0, 20],
       zoom: 2,
+      projection: 'mercator', // Use flat map to avoid globe wrapping issues
       attributionControl: false,
     });
 
@@ -36,6 +37,8 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         tileSize: 256,
         minzoom: 0,
         maxzoom: 9, // Limit to zoom levels we have tiles for
+        bounds: [-180, -85.0511, 180, 85.0511], // World bounds to prevent tiling artifacts
+        scheme: 'xyz', // Standard XYZ tile scheme
         attribution: "Light pollution data from VIIRS"
       });
 
