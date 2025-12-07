@@ -18,19 +18,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
 
     map.current = new maplibregl.Map({
       container: mapContainer.current,
-      style: {
-        version: 8,
-        sources: {},
-        layers: [
-          {
-            id: 'background',
-            type: 'background',
-            paint: {
-              'background-color': '#000000' // Pure black background for stargazing theme
-            }
-          }
-        ]
-      },
+      style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
       center: [0, 20],
       zoom: 2,
       attributionControl: false,
@@ -48,10 +36,14 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         tileSize: 256,
         minzoom: 0,
         maxzoom: 9, // Limit to zoom levels we have tiles for
-        bounds: [-180, -85.051129, 180, 85.051129], // Web Mercator limits
+        bounds: [-180, -85.0511, 180, 85.0511], // World bounds to stop repeating artifact
         scheme: 'xyz', // Standard XYZ tile scheme
         attribution: "Light pollution data from VIIRS"
       });
+
+      // Find the first symbol layer (city labels) to place our layer below it
+      const layers = map.current.getStyle().layers;
+      const firstSymbolLayer = layers.find(layer => layer.type === 'symbol');
 
       map.current.addLayer({
         id: "light-pollution-layer",
@@ -60,7 +52,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         paint: {
           "raster-opacity": 0.8 // Balanced opacity for transparent tiles
         }
-      });
+      }, firstSymbolLayer ? firstSymbolLayer.id : undefined);
 
       // Add attribution control
       map.current.addControl(
