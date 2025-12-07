@@ -21,7 +21,6 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
       style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
       center: [0, 20],
       zoom: 2,
-      projection: 'mercator', // Use flat map to avoid globe wrapping issues
       attributionControl: false,
     });
 
