@@ -18,7 +18,19 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
 
     map.current = new maplibregl.Map({
       container: mapContainer.current,
-      style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+      style: {
+        version: 8,
+        sources: {},
+        layers: [
+          {
+            id: 'background',
+            type: 'background',
+            paint: {
+              'background-color': '#000000' // Pure black background for stargazing theme
+            }
+          }
+        ]
+      },
       center: [0, 20],
       zoom: 2,
       attributionControl: false,
@@ -36,7 +48,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         tileSize: 256,
         minzoom: 0,
         maxzoom: 9, // Limit to zoom levels we have tiles for
-        bounds: [-180, -85.0511, 180, 85.0511], // World bounds to prevent tiling artifacts
+        bounds: [-180, -85.051129, 180, 85.051129], // Web Mercator limits
         scheme: 'xyz', // Standard XYZ tile scheme
         attribution: "Light pollution data from VIIRS"
       });
