@@ -27,42 +27,25 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
     map.current.on("load", async () => {
       if (!map.current) return;
 
-      // Add light pollution layer (New Transparent Tiles)
+      // Add light pollution layer
       map.current.addSource("light-pollution", {
-        type: "raster",
-        tiles: [
-          "https://pub-5ec788c7cc324df48e09c31eb119bae4.r2.dev/{z}/{x}/{y}.png"
-        ],
+        type: 'raster',
+        tiles: ['https://pub-5ec788c7cc324df48e09c31eb119bae4.r2.dev/{z}/{x}/{y}.png'],
         tileSize: 256,
-        minzoom: 0,
-        maxzoom: 9, // Limit to zoom levels we have tiles for
-        bounds: [-180, -85.051129, 180, 85.051129], // Web Mercator limits to stop vertical repeat
-        scheme: 'xyz', // Standard XYZ tile scheme
+        bounds: [-180, -85.051129, 180, 85.051129], // Critical: stops vertical repeating
+        scheme: 'xyz',
         attribution: "Light pollution data from VIIRS"
       });
 
-      // Add layer before label layers so text appears ON TOP of lights
-      const layers = map.current.getStyle().layers;
-
-      // Find label layers (watername_ocean, country labels, etc.) to place our layer before
-      const labelLayerIds = ['watername_ocean', 'country_label', 'state_label', 'place_label'];
-      const firstLabelLayer = layers.find(layer =>
-        labelLayerIds.includes(layer.id) ||
-        (layer.type === 'symbol' && layer.id.includes('label'))
-      );
-
-      // Fallback to first symbol layer if no specific label found
-      const beforeLayerId = firstLabelLayer?.id ||
-        layers.find(layer => layer.type === 'symbol')?.id;
-
+      // Insert layer before labels so city names sit on TOP of lights
       map.current.addLayer({
         id: "light-pollution-layer",
         type: "raster",
         source: "light-pollution",
         paint: {
-          "raster-opacity": 0.8 // Balanced opacity for transparent tiles
+          "raster-opacity": 0.8
         }
-      }, beforeLayerId);
+      }, 'watername_ocean');
 
       // Add attribution control
       map.current.addControl(
