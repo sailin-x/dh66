@@ -36,14 +36,24 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         tileSize: 256,
         minzoom: 0,
         maxzoom: 9, // Limit to zoom levels we have tiles for
-        bounds: [-180, -85.0511, 180, 85.0511], // World bounds to stop repeating artifact
+        bounds: [-180, -85.051129, 180, 85.051129], // Web Mercator limits to stop vertical repeat
         scheme: 'xyz', // Standard XYZ tile scheme
         attribution: "Light pollution data from VIIRS"
       });
 
-      // Find the first symbol layer (city labels) to place our layer below it
+      // Add layer before label layers so text appears ON TOP of lights
       const layers = map.current.getStyle().layers;
-      const firstSymbolLayer = layers.find(layer => layer.type === 'symbol');
+
+      // Find label layers (watername_ocean, country labels, etc.) to place our layer before
+      const labelLayerIds = ['watername_ocean', 'country_label', 'state_label', 'place_label'];
+      const firstLabelLayer = layers.find(layer =>
+        labelLayerIds.includes(layer.id) ||
+        (layer.type === 'symbol' && layer.id.includes('label'))
+      );
+
+      // Fallback to first symbol layer if no specific label found
+      const beforeLayerId = firstLabelLayer?.id ||
+        layers.find(layer => layer.type === 'symbol')?.id;
 
       map.current.addLayer({
         id: "light-pollution-layer",
@@ -52,7 +62,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         paint: {
           "raster-opacity": 0.8 // Balanced opacity for transparent tiles
         }
-      }, firstSymbolLayer ? firstSymbolLayer.id : undefined);
+      }, beforeLayerId);
 
       // Add attribution control
       map.current.addControl(
