@@ -27,12 +27,11 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
     map.current.on("load", async () => {
       if (!map.current) return;
 
-      // Add light pollution layer
+      // Add light pollution layer - removed bounds to test for stretching
       map.current.addSource("light-pollution", {
         type: 'raster',
         tiles: ['https://pub-5ec788c7cc324df48e09c31eb119bae4.r2.dev/{z}/{x}/{y}.png'],
         tileSize: 256,
-        bounds: [-180, -85.051129, 180, 85.051129], // Critical: stops vertical repeating
         scheme: 'xyz',
         attribution: "Light pollution data from VIIRS"
       });
