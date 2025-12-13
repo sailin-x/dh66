@@ -16,22 +16,24 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
 
-    // FIX: Mercator projection is undefined at +/- 90 degrees latitude.
-    // We must limit bounds to approx +/- 85.05 degrees to prevent crash.
-    const worldBounds: [number, number, number, number] = [-180, -85.05, 180, 85.05];
-
     map.current = new maplibregl.Map({
       container: mapContainer.current,
       style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
       center: [0, 20],
       zoom: 2,
       attributionControl: false,
-      renderWorldCopies: false, // Prevents horizontal repeating/ghosting
-      maxBounds: worldBounds,   // Locks camera to single world instance
+      renderWorldCopies: false, // Prevents horizontal repeating
+      // NOTE: We do NOT set maxBounds here to prevent init crashes
     });
 
     map.current.on("load", async () => {
       if (!map.current) return;
+
+      // 1. Apply maxBounds SAFELY after load to prevent crash
+      map.current.setMaxBounds([
+        [-180, -85.05], // Southwest coordinates
+        [180, 85.05]    // Northeast coordinates
+      ]);
 
       // Add light pollution layer
       map.current.addSource("light-pollution", {
@@ -40,7 +42,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         tileSize: 256,
         scheme: 'xyz',
         attribution: "Light pollution data from VIIRS",
-        // Clip source slightly inside 180 to avoid edge artifacts
+        // Clip source strictly inside 180 to avoid edge artifacts
         bounds: [-179.9, -85.05, 179.9, 85.05], 
         maxzoom: 9 
       });
