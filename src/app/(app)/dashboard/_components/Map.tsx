@@ -16,8 +16,9 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
 
-    // LOCK CAMERA: Prevents user from panning past the world edge
-    const worldBounds: [number, number, number, number] = [-180, -90, 180, 90];
+    // FIX: Mercator projection is undefined at +/- 90 degrees latitude.
+    // We must limit bounds to approx +/- 85.05 degrees to prevent crash.
+    const worldBounds: [number, number, number, number] = [-180, -85.05, 180, 85.05];
 
     map.current = new maplibregl.Map({
       container: mapContainer.current,
@@ -25,8 +26,8 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
       center: [0, 20],
       zoom: 2,
       attributionControl: false,
-      renderWorldCopies: false, // Disables infinite horizontal scroll
-      maxBounds: worldBounds,
+      renderWorldCopies: false, // Prevents horizontal repeating/ghosting
+      maxBounds: worldBounds,   // Locks camera to single world instance
     });
 
     map.current.on("load", async () => {
@@ -39,7 +40,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         tileSize: 256,
         scheme: 'xyz',
         attribution: "Light pollution data from VIIRS",
-        // 🛑 CRITICAL FIX: Clip bounds to 179.9 to prevent dateline wrapping/ghosting
+        // Clip source slightly inside 180 to avoid edge artifacts
         bounds: [-179.9, -85.05, 179.9, 85.05], 
         maxzoom: 9 
       });
