@@ -16,14 +16,18 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
 
+    // DEFINE STRICT WORLD BOUNDS
+    // This box covers the whole world but stops exactly at the dateline edges
+    const worldBounds: [number, number, number, number] = [-180, -90, 180, 90];
+
     map.current = new maplibregl.Map({
       container: mapContainer.current,
       style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
       center: [0, 20],
       zoom: 2,
       attributionControl: false,
-      // 1. GLOBAL FIX: Stop MapLibre from rendering multiple worlds side-by-side
-      renderWorldCopies: false, 
+      renderWorldCopies: false, // Don't render infinite worlds
+      maxBounds: worldBounds,   // 🔒 CRITICAL FIX: Lock camera to ONE world. No scrolling past the edge.
     });
 
     map.current.on("load", async () => {
@@ -36,10 +40,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         tileSize: 256,
         scheme: 'xyz',
         attribution: "Light pollution data from VIIRS",
-        // 2. STRICT BOUNDS: Clip just inside 180 to prevent the texture from wrapping/ghosting
-        bounds: [-179.99, -85.05, 179.99, 85.05],
-        minzoom: 0,
-        // 3. ZOOM STRETCH: Tell map tiles stop at 9, but stretch them for deeper zooms
+        bounds: [-180, -85.051129, 180, 85.051129], // Keep source bounds standard
         maxzoom: 9 
       });
 
@@ -51,7 +52,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         paint: {
           "raster-opacity": 0.8,
           "raster-resampling": "linear",
-          "raster-fade-duration": 0 // 4. INSTANT LOAD: Prevents ghosting during tile loading/panning
+          "raster-fade-duration": 0
         }
       }, 'watername_ocean');
 
