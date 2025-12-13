@@ -16,8 +16,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
 
-    // DEFINE STRICT WORLD BOUNDS
-    // This box covers the whole world but stops exactly at the dateline edges
+    // LOCK CAMERA: Prevents user from panning past the world edge
     const worldBounds: [number, number, number, number] = [-180, -90, 180, 90];
 
     map.current = new maplibregl.Map({
@@ -26,8 +25,8 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
       center: [0, 20],
       zoom: 2,
       attributionControl: false,
-      renderWorldCopies: false, // Don't render infinite worlds
-      maxBounds: worldBounds,   // 🔒 CRITICAL FIX: Lock camera to ONE world. No scrolling past the edge.
+      renderWorldCopies: false, // Disables infinite horizontal scroll
+      maxBounds: worldBounds,
     });
 
     map.current.on("load", async () => {
@@ -40,7 +39,8 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         tileSize: 256,
         scheme: 'xyz',
         attribution: "Light pollution data from VIIRS",
-        bounds: [-180, -85.051129, 180, 85.051129], // Keep source bounds standard
+        // 🛑 CRITICAL FIX: Clip bounds to 179.9 to prevent dateline wrapping/ghosting
+        bounds: [-179.9, -85.05, 179.9, 85.05], 
         maxzoom: 9 
       });
 
