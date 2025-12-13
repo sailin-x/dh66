@@ -22,7 +22,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
       center: [0, 20],
       zoom: 2,
       attributionControl: false,
-      // 1. STOP THE GHOSTING: This forces a single world view, no wrapping repeats
+      // 1. GLOBAL FIX: Stop MapLibre from rendering multiple worlds side-by-side
       renderWorldCopies: false, 
     });
 
@@ -36,10 +36,10 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         tileSize: 256,
         scheme: 'xyz',
         attribution: "Light pollution data from VIIRS",
-        // 2. LOCK BOUNDS: Prevents texture stretching at the poles
-        bounds: [-180, -85.051129, 180, 85.051129],
-        // 3. ENABLE OVERSCALING: Tells map "I only have tiles up to zoom 9".
-        // If user zooms to 10+, it will reuse (stretch) the zoom 9 tiles.
+        // 2. STRICT BOUNDS: Clip just inside 180 to prevent the texture from wrapping/ghosting
+        bounds: [-179.99, -85.05, 179.99, 85.05],
+        minzoom: 0,
+        // 3. ZOOM STRETCH: Tell map tiles stop at 9, but stretch them for deeper zooms
         maxzoom: 9 
       });
 
@@ -50,7 +50,8 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         source: "light-pollution",
         paint: {
           "raster-opacity": 0.8,
-          "raster-resampling": "linear" // Makes the stretch look smoother at high zoom
+          "raster-resampling": "linear",
+          "raster-fade-duration": 0 // 4. INSTANT LOAD: Prevents ghosting during tile loading/panning
         }
       }, 'watername_ocean');
 
