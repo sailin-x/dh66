@@ -22,18 +22,21 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
       center: [0, 20],
       zoom: 2,
       attributionControl: false,
+      renderWorldCopies: false, // 🛑 THIS STOPS THE GHOSTING/REPEATING
     });
 
     map.current.on("load", async () => {
       if (!map.current) return;
 
-      // Add light pollution layer - removed bounds to test for stretching
+      // Add light pollution layer
       map.current.addSource("light-pollution", {
         type: 'raster',
         tiles: ['https://pub-5ec788c7cc324df48e09c31eb119bae4.r2.dev/{z}/{x}/{y}.png'],
         tileSize: 256,
         scheme: 'xyz',
-        attribution: "Light pollution data from VIIRS"
+        attribution: "Light pollution data from VIIRS",
+        // 🔒 LOCK THE BOUNDS to standard Web Mercator limits
+        bounds: [-180, -85.051129, 180, 85.051129] 
       });
 
       // Insert layer before labels so city names sit on TOP of lights
