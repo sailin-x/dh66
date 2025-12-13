@@ -22,49 +22,44 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
       center: [0, 20],
       zoom: 2,
       attributionControl: false,
-      renderWorldCopies: false, // This stops the repeating continents
-      // Removed maxBounds to fix freezing/crashing
+      renderWorldCopies: false, // CRITICAL: No world repeating
     });
 
     map.current.on("load", async () => {
       if (!map.current) return;
 
-      // Add light pollution layer
+      // XYZ tiles now properly generated with --xyz flag
       map.current.addSource("light-pollution", {
         type: 'raster',
         tiles: ['https://pub-5ec788c7cc324df48e09c31eb119bae4.r2.dev/{z}/{x}/{y}.png'],
         tileSize: 256,
-        scheme: 'xyz',
+        scheme: 'xyz', // Matches gdal2tiles --xyz output
         attribution: "Light pollution data from VIIRS",
-        // Clip source just inside 180 to prevent edge wrapping artifacts
-        bounds: [-179.9, -85.05, 179.9, 85.05],
+        minzoom: 0,
         maxzoom: 9
       });
 
-      // Insert layer before labels so city names sit on TOP of lights
+      // Add layer
       map.current.addLayer({
         id: "light-pollution-layer",
         type: "raster",
         source: "light-pollution",
         paint: {
-          "raster-opacity": 0.8,
-          "raster-resampling": "linear",
-          "raster-fade-duration": 0
+          "raster-opacity": 0.75,
+          "raster-resampling": "linear"
         }
       }, 'watername_ocean');
 
-      // Add attribution control
+      // Attribution
       map.current.addControl(
-        new maplibregl.AttributionControl({
-          compact: true,
-        }),
+        new maplibregl.AttributionControl({ compact: true }),
         "bottom-right"
       );
 
-      // Add moveend listener
+      // Moveend listener
       map.current.on("moveend", () => {
-        if (onMoveEnd) {
-          const center = map.current!.getCenter();
+        if (onMoveEnd && map.current) {
+          const center = map.current.getCenter();
           onMoveEnd([center.lng, center.lat]);
         }
       });
@@ -85,10 +80,10 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
             essential: true
           });
 
-          // Call onMoveEnd after flyTo animation completes
           setTimeout(() => {
             if (onMoveEnd && map.current) {
-              onMoveEnd(map.current.getCenter().toArray() as [number, number]);
+              const center = map.current.getCenter();
+              onMoveEnd([center.lng, center.lat]);
             }
           }, 3000);
         }
@@ -105,7 +100,6 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
     };
   }, []);
 
-  // Effect to fly to location when flyToLocation changes
   useEffect(() => {
     if (flyToLocation && map.current) {
       map.current.flyTo({
