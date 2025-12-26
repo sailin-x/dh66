@@ -47,10 +47,10 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         type: "raster",
         source: "light-pollution",
         paint: {
-          "raster-opacity": 0.6,
+          "raster-opacity": 0.5,
           "raster-resampling": "linear",
           "raster-fade-duration": 300,
-          "raster-contrast": 0,
+          "raster-contrast": -0.2,
           "raster-saturation": 0
         }
       }, 'watername_ocean');
