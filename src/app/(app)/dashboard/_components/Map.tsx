@@ -21,7 +21,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
       style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
       center: [0, 20],
       zoom: 2,
-      maxZoom: 14, // <--- ADDED: Prevents users from zooming into blurry nothingness (Source is Z11)
+      maxZoom: 11.9, // <--- CHANGED: Capped to 11.9 to prevent pixelation (Data is Z11)
       attributionControl: false,
       renderWorldCopies: false,
     });
