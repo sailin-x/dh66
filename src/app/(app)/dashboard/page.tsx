@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Map, CommandPalette, IntelligencePanel } from "./_components";
+import { Map, CommandPalette, IntelligencePanel, Legend } from "./_components";
 
 export default function DashboardPage() {
   const [flyToLocation, setFlyToLocation] = useState<[number, number] | null>(null);
@@ -12,6 +12,7 @@ export default function DashboardPage() {
       <Map flyToLocation={flyToLocation} onMoveEnd={setMapCenter} />
       <CommandPalette onLocationSelect={setFlyToLocation} />
       <IntelligencePanel center={mapCenter} />
+      <Legend />
     </div>
   );
 }

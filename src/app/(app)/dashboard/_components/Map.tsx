@@ -21,32 +21,37 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
       style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
       center: [0, 20],
       zoom: 2,
+      maxZoom: 14, // <--- ADDED: Prevents users from zooming into blurry nothingness (Source is Z11)
       attributionControl: false,
-      renderWorldCopies: false, // CRITICAL: No world repeating
+      renderWorldCopies: false,
     });
 
     map.current.on("load", async () => {
       if (!map.current) return;
 
-      // XYZ tiles now properly generated with --xyz flag
+      // XYZ tiles with zoom 0-11 for crisp detail
       map.current.addSource("light-pollution", {
         type: 'raster',
         tiles: ['https://pub-5ec788c7cc324df48e09c31eb119bae4.r2.dev/{z}/{x}/{y}.png'],
         tileSize: 256,
-        scheme: 'xyz', // Matches gdal2tiles --xyz output
+        scheme: 'xyz',
         attribution: "Light pollution data from VIIRS",
         minzoom: 0,
-        maxzoom: 9
+        maxzoom: 11 // <--- CONFIRMED: This enables the new Z11 tiles
       });
 
       // Add layer
+      // Note: 'watername_ocean' attempts to place this below labels if that layer exists
       map.current.addLayer({
         id: "light-pollution-layer",
         type: "raster",
         source: "light-pollution",
         paint: {
           "raster-opacity": 0.75,
-          "raster-resampling": "linear"
+          "raster-resampling": "linear",
+          "raster-fade-duration": 300,
+          "raster-contrast": 0.2,
+          "raster-saturation": 0.1
         }
       }, 'watername_ocean');
 
@@ -104,7 +109,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
     if (flyToLocation && map.current) {
       map.current.flyTo({
         center: flyToLocation,
-        zoom: 12,
+        zoom: 12, // Zoom 12 is perfect for the new Z11 tiles (slight stretch)
         duration: 2000,
         essential: true
       });
