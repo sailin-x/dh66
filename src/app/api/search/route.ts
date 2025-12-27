@@ -12,19 +12,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
-
-    if (!mapboxToken) {
-      return NextResponse.json(
-        { error: "Mapbox token not configured" },
-        { status: 500 }
-      );
-    }
-
+    // Use Nominatim (OpenStreetMap) - No API Key required
+    // Must provide a valid User-Agent as per Usage Policy
     const response = await fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
         q
-      )}.json?access_token=${mapboxToken}&types=place,locality,neighborhood,poi&limit=5`
+      )}&format=json&limit=5&addressdetails=1`,
+      {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (compatible; DarkestHour/1.0; +https://example.com)",
+        },
+      }
     );
 
     if (!response.ok) {
@@ -35,7 +33,19 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json();
-    return NextResponse.json(data.features);
+
+    // Transform Nominatim format to match our frontend expectation (Mapbox Feature-like)
+    const features = data.map((item: any) => ({
+      id: item.place_id,
+      place_name: item.display_name,
+      center: [parseFloat(item.lon), parseFloat(item.lat)], // [lng, lat]
+      properties: {
+        address: item.display_name,
+        category: item.type,
+      },
+    }));
+
+    return NextResponse.json(features);
   } catch (error) {
     console.error("Geocoding API error:", error);
     return NextResponse.json(

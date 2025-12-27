@@ -93,7 +93,7 @@ export function CommandPalette({ onLocationSelect }: CommandPaletteProps) {
         </kbd>
       </button>
 
-      <CommandDialog open={open} onOpenChange={setOpen}>
+      <CommandDialog open={open} onOpenChange={setOpen} shouldFilter={false}>
         <CommandInput
           placeholder="Search for places, cities, neighborhoods..."
           value={search}

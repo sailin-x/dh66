@@ -21,7 +21,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
       style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
       center: [0, 20],
       zoom: 2,
-      maxZoom: 11.9, // <--- CHANGED: Capped to 11.9 to prevent pixelation (Data is Z11)
+      maxZoom: 10.5, // Capped to 10.5 to prevent pixelation
       attributionControl: false,
       renderWorldCopies: false,
     });
@@ -37,7 +37,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         scheme: 'xyz',
         attribution: "Light pollution data from VIIRS",
         minzoom: 0,
-        maxzoom: 11 // <--- CONFIRMED: This enables the new Z11 tiles
+        maxzoom: 8 // Force soft upscaling at higher zooms (Blurs pixels)
       });
 
       // Add layer
@@ -50,8 +50,8 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
           "raster-opacity": 0.5,
           "raster-resampling": "linear",
           "raster-fade-duration": 300,
-          "raster-contrast": -0.2,
-          "raster-saturation": 0
+          "raster-contrast": 0,    // Less contrast for smoother look
+          "raster-saturation": -0.1 // Slight desaturation
         }
       }, 'watername_ocean');
 
@@ -109,7 +109,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
     if (flyToLocation && map.current) {
       map.current.flyTo({
         center: flyToLocation,
-        zoom: 12, // Zoom 12 is perfect for the new Z11 tiles (slight stretch)
+        zoom: 10.5, // Matches the new maxZoom cap
         duration: 2000,
         essential: true
       });
