@@ -37,7 +37,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         scheme: 'xyz',
         attribution: "Light pollution data from VIIRS",
         minzoom: 0,
-        maxzoom: 8 // Force soft upscaling at higher zooms (Blurs pixels)
+        maxzoom: 7 // Increased blur radius (Zoom 7 -> Zoom 10.5 stretch)
       });
 
       // Add layer
@@ -47,11 +47,11 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         type: "raster",
         source: "light-pollution",
         paint: {
-          "raster-opacity": 0.5,
+          "raster-opacity": 0.6,   // Increased opacity (make it pop)
           "raster-resampling": "linear",
           "raster-fade-duration": 300,
-          "raster-contrast": 0,    // Less contrast for smoother look
-          "raster-saturation": -0.1 // Slight desaturation
+          "raster-contrast": 0.1,  // Slight contrast boost
+          "raster-saturation": 0.1 // Restore some color vibrancy
         }
       }, 'watername_ocean');
 
