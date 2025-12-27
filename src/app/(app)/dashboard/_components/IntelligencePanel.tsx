@@ -9,6 +9,7 @@ interface WeatherData {
   cloudCover: number;
   visibility: number;
   humidity: number;
+  dewPoint: number;
   isDay: boolean;
   astronomy: {
     moonPhase: number;
@@ -67,6 +68,28 @@ export function IntelligencePanel({ center }: IntelligencePanelProps) {
 
   const moonPhaseLabel = weather ? getMoonPhaseLabel(weather.astronomy.moonPhase) : "--";
 
+  // Logic for Observation Status
+  const getObservationStatus = () => {
+    if (!weather) return { status: "LOADING", color: "text-gray-400" };
+    if (weather.isDay) return { status: "DAYLIGHT", color: "text-yellow-400" };
+
+    const { cloudCover } = weather;
+    const { seeing, transparency } = weather.astronomy;
+
+    if (cloudCover < 20 && seeing === "Excellent" && transparency === "Excellent") {
+      return { status: "EXCELLENT", color: "text-green-400" };
+    }
+    if (cloudCover < 40 && seeing !== "Poor") {
+      return { status: "GOOD", color: "text-blue-400" };
+    }
+    if (cloudCover > 80) {
+      return { status: "POOR", color: "text-red-400" };
+    }
+    return { status: "FAIR", color: "text-orange-400" };
+  };
+
+  const obsStatus = getObservationStatus();
+
   return (
     <AnimatePresence>
       <motion.div
@@ -76,8 +99,14 @@ export function IntelligencePanel({ center }: IntelligencePanelProps) {
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
         className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40"
       >
-        <div className="bg-background/90 backdrop-blur-md border rounded-xl p-5 shadow-2xl min-w-[320px] text-foreground">
-          <h3 className="text-xs font-bold uppercase tracking-widest mb-4 text-center text-muted-foreground">Dark Sky Intelligence</h3>
+        <div className="bg-background/90 backdrop-blur-md border rounded-xl p-5 shadow-2xl min-w-[340px] text-foreground">
+          {/* Header with Dynamic Status */}
+          <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Dark Sky Intelligence</h3>
+            <span className={`text-xs font-black tracking-wider ${obsStatus.color} border border-current px-2 py-0.5 rounded-full`}>
+              {loading ? "..." : obsStatus.status}
+            </span>
+          </div>
 
           <div className="grid grid-cols-2 gap-x-8 gap-y-3">
 
@@ -86,10 +115,10 @@ export function IntelligencePanel({ center }: IntelligencePanelProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Thermometer className="w-4 h-4 text-blue-400" />
-                  <span className="text-xs font-medium">Temp</span>
+                  <span className="text-xs font-medium">Temp / Dew</span>
                 </div>
                 <span className="text-xs font-bold">
-                  {loading ? "..." : weather ? `${weather.temperature}°C` : "--"}
+                  {loading ? "..." : weather ? `${weather.temperature}° / ${weather.dewPoint}°` : "--"}
                 </span>
               </div>
 
@@ -156,7 +185,6 @@ export function IntelligencePanel({ center }: IntelligencePanelProps) {
     </AnimatePresence>
   );
 }
-
 // Debounce utility function
 function debounce<T extends (...args: any[]) => any>(
   func: T,

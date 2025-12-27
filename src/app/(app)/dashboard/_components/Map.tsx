@@ -21,7 +21,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
       style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
       center: [0, 20],
       zoom: 2,
-      maxZoom: 10.5, // Capped to 10.5 to prevent pixelation
+      maxZoom: 18, // Unlocked for deep street-level zoom
       attributionControl: false,
       renderWorldCopies: false,
     });
@@ -47,11 +47,10 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
         type: "raster",
         source: "light-pollution",
         paint: {
-          "raster-opacity": 0.6,   // Increased opacity (make it pop)
+          "raster-opacity": 0.55,  // Slightly lower to reduce edge harness
           "raster-resampling": "linear",
           "raster-fade-duration": 300,
-          "raster-contrast": 0.1,  // Slight contrast boost
-          "raster-saturation": 0.1 // Restore some color vibrancy
+          "raster-saturation": 0.1 // Keep a bit of color pop
         }
       }, 'watername_ocean');
 
@@ -109,7 +108,7 @@ export function Map({ flyToLocation, onMoveEnd }: MapProps) {
     if (flyToLocation && map.current) {
       map.current.flyTo({
         center: flyToLocation,
-        zoom: 10.5, // Matches the new maxZoom cap
+        zoom: 12, // Closer look, now that we have depth
         duration: 2000,
         essential: true
       });

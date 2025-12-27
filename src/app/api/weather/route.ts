@@ -76,6 +76,7 @@ export async function GET(request: NextRequest) {
       cloudCover: data?.current?.cloud_cover ?? 0,
       visibility: visibility,
       humidity: humidity,
+      dewPoint: Math.round(data?.current?.temperature_2m - ((100 - humidity) / 5)), // Simple approximation
       isDay: isDay,
       astronomy: {
         moonPhase: currentPhase,
